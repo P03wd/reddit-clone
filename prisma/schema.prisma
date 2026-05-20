@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id
+  username  String   @unique
+  email     String   @unique
+  imageUrl  String?
+  bio       String?
+  createdAt DateTime @default(now())
+
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
+  communities Community[]
+memberships CommunityMember[]
+  accounts Account[]
+  sessions Session[]
+}
+
+model Community {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  description String?
+
+  creatorId String
+  creator User @relation(fields: [creatorId], references: [id])
+
+  posts Post[]
+
+  members CommunityMember[]
+
+  createdAt DateTime @default(now())
+}
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  communityId String?
+  community   Community? @relation(fields: [communityId], references: [id])
+
+  comments Comment[]
+  likes    Like[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+}
+
+model Account {
+  id                String @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+model CommunityMember {
+  id String @id @default(cuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  communityId String
+  community Community @relation(fields: [communityId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, communityId])
+}
