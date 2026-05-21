@@ -1,10 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-
 import { getCurrentUser } from "@/lib/currentUser";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function createCommunity(
   formData: FormData
@@ -26,10 +26,11 @@ export async function createCommunity(
       data: {
         name,
         description,
-
         creatorId: currentUser.id,
       },
     });
+
+  revalidatePath("/");
 
   redirect(`/r/${community.name}`);
 }
