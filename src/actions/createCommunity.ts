@@ -3,16 +3,13 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/currentUser";
 
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-
 export async function createCommunity(
   formData: FormData
 ) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    return;
+    return { success: false };
   }
 
   const name = formData.get("name") as string;
@@ -30,7 +27,8 @@ export async function createCommunity(
       },
     });
 
-  revalidatePath("/");
-
-  redirect(`/r/${community.name}`);
+  return {
+    success: true,
+    communityName: community.name,
+  };
 }

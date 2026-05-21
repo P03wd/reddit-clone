@@ -1,6 +1,21 @@
+"use client";
+
 import { createCommunity } from "@/actions/createCommunity";
+import { useRouter } from "next/navigation";
 
 export default function CreateCommunityPage() {
+  const router = useRouter();
+
+  async function handleSubmit(
+    formData: FormData
+  ) {
+    const result = await createCommunity(formData);
+
+    if (result?.success) {
+      router.push(`/r/${result.communityName}`);
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">
@@ -8,7 +23,7 @@ export default function CreateCommunityPage() {
       </h1>
 
       <form
-        action={createCommunity}
+        action={handleSubmit}
         className="flex flex-col gap-4"
       >
         <input
@@ -26,11 +41,11 @@ export default function CreateCommunityPage() {
         />
 
         <button
-  type="submit"
-  className="bg-black text-white border border-gray-300 hover:bg-gray-800 py-3 rounded-lg font-medium transition"
->
-  Create Community
-</button>
+          type="submit"
+          className="bg-black text-white border border-gray-300 hover:bg-gray-800 py-3 rounded-lg font-medium transition"
+        >
+          Create Community
+        </button>
       </form>
     </div>
   );
